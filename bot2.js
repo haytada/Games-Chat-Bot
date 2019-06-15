@@ -8,7 +8,7 @@ client.on('ready', () => {
 
 client.on('guildMemberAdd', member => {
     console.log('User' + member.user.tag + 'has joined the server!');
-    var role = member.guild.roles.find('name', 'Test');
+    var role = member.guild.roles.find('name', 'Members');
     member.addRole(role);
   });
 
@@ -62,14 +62,80 @@ client.on('message', (message) => {
   if(message.content.includes ("der")) {
     message.channel.send("derrrrrrrrrr")
   }
-  
-  //if (message.content === "differentCommand") {
-    //return message.channel.send("This is a different command!!")
-  //}
-
-  //if (message.content === "differentCommand") {
-    //return message.channel.send("This is a different command!!")
-  //}
  });
+
+client.on('raw', event => {
+    console.log(event);
+    const eventName = event.t;
+    if(eventName === 'MESSAGE_REACTION_ADD')
+    {
+        if(event.d.message_id === '589456666764771360')
+        {
+          var reactionChannel = client.channels.get(event.d.channel_id);
+          if(reactionChannel.messages.has(event.d.message_id))
+            return;
+          else {
+            reactionChannel.fetchMessage(event.d.message_id)
+            .then(msg => {
+              var msgReaction = msg.reactions.get(event.d.emoji.name + ":" + event.d.emoji.id);
+              var user = client.users.get(event.d.user_id);
+              client.emit('messageReactionAdd', msgReaction, user);
+            })
+            .catch(err => console.log(err));
+          }
+        }
+    }
+    else if(eventName === "MESSAGE_REACTION_REMOVE")
+    {
+      if(event.d.message_id === '589456666764771360')
+     {
+      var reactionChannel = client.channels.get(event.d.channel_id);
+      if(reactionChannel.messages.has(event.d.message_id))
+          return;
+      else {
+        reactionChannel.fetchMessage(event.d.message_id)
+        .then(msg => {
+          var msgReaction = msg.reactions.get(event.d.emoji.name + ":" + event.d.emoji.id);
+          var user = client.users.get(event.d.user_id);
+          client.emit('messageReactionRemove', msgReaction, user);
+        })
+        .catch(err => console.log(err));
+      }
+     }
+
+    }
+});
+
+client.on('messageReactionAdd', (messageReaction, user) => {
+    
+    var roleName = messageReaction.emoji.name;
+    var role = messageReaction.message.guild.roles.find(role => role.name.toLowerCase() === roleName.toLowerCase());
+
+    if(role)
+    {
+      var member = messageReaction.message.guild.members.find(member => member.id === user.id);
+      if(member)
+      {
+        member.addRole(role.id);
+        console.log("Success. Added role.");
+      }
+    }
+ });
+
+client.on('messageReactionRemove', (messageReaction, user) => {
+
+  var roleName = messageReaction.emoji.name;
+  var role = messageReaction.message.guild.roles.find(role => role.name.toLowerCase() === roleName.toLowerCase());
+  if(role)
+  {
+    var member = messageReaction.message.guild.members.find(member => member.id === user.id);
+    if(member)
+    {
+      member.removeRole(role.id);
+      console.log("Success. Removed role.");
+    }
+  }
+
+});
 
 client.login(config.token)
