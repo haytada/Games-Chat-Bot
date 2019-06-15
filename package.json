@@ -2,12 +2,12 @@
   "name": "GamesChatBot",
   "version": "1.0.0",
   "description": "",
-  "main": "index.js",
+  "main": "bot2.js",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "keywords": [],
-  "author": "",
+  "author": "Adam Hayton",
   "license": "ISC",
   "dependencies": {
     "discord.js": "^11.5.1"
