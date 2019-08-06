@@ -30,6 +30,12 @@ client.on('message', async message => { //ALL COMMANDS IN HERE
         message.delete().catch(O_o=>{});
     }
 
+    if(command === "rl") {
+      const rocketleague = client.channels.get ("425598379934875650")
+      rocketleague.send("@here. " + message.member.user.username + " would like to know if you'd like to play Rocket League?")
+      message.delete().catch(O_o=>{})
+    }
+
     if(command === "dm") {
       if(!message.member.roles.some(r =>["Admin"].includes(r.name)))
       return message.reply("Sorry, you don't have permission to use this command!")
@@ -56,16 +62,19 @@ client.on('message', async message => { //ALL COMMANDS IN HERE
     }
 
     if(command === "help") {
-      message.delete();
           const embed = new Discord.RichEmbed();
             embed.setAuthor(client.user.username, client.user.displayAvatarURL);
             embed.setTitle("Bot Commands");
             embed.setDescription("A list of commands for use with the bot");
             embed.setThumbnail(client.user.displayAvatarURL);
+            embed.addField("!coin", "Flip a coin.")
+            embed.addField("!decide (Question)", "Ask a question and let the bot decide.")
             embed.addField("!invite", "Display the invite link for this server to send to your friends.")
             embed.addField("!psnstatus", "Check the status of the PlayStation Network.");
             embed.addField("!ping", "Will check the latency between the bot and the API.");
-            embed.addField("!steam (username)", "Return information on the Steam user.")
+            embed.addField("!rl", "Send Rocket League invite to the Rocket League channel mentioning all users with the Rocket League role.");
+            embed.addField("!rlstats (platform) (username)", "Will return a link to your specified Rocket League stats. Platform codes are **steam = Steam**, **ps = PlayStation**, **xbox = Xbox Live**");
+            embed.addField("!steam (username)", "Return information on the Steam user.");
             embed.setColor('ff3ff5');
             embed.setTimestamp(Date.now());
           const embedAdmin = new Discord.RichEmbed();
@@ -74,6 +83,8 @@ client.on('message', async message => { //ALL COMMANDS IN HERE
             embedAdmin.setDescription("Full list of commands for use with the bot including admin restricted commands.");
             embedAdmin.setThumbnail(client.user.displayAvatarURL);
             embedAdmin.addField("!announce Title; Body; URL; Link to image", "Creates an announcement. Make sure that all of the arguments are seperated by a semi-colon and THEN a space. You can choose to omit certain parameters but there still needs to be a semi-colon and a space. *e.g. This is the Title; This is the body; This is the URL; This is the image* **OR** *This is the Title; ; This is the URL would display an announcement with just a clickable title with no image and no text in the body.*")
+            embedAdmin.addField("!coin", "Flip a coin.")
+            embedAdmin.addField("!decide (Question)", "Ask a question and let the bot decide.")
             embedAdmin.addField("!dm @user", "Send a DM to the tagged user as the bot.")
             embedAdmin.addField("!kick", "Kick the tagged user from the server. You can type a reason afterwards.")
             embedAdmin.addField("!invite", "Display the invite link for this server to send to your friends.")
@@ -81,7 +92,9 @@ client.on('message', async message => { //ALL COMMANDS IN HERE
             embedAdmin.addField("!steam (username)", "Return information on the Steam user.")
             embedAdmin.addField("!ping", "Will check the latency between the bot and the API.");
             embedAdmin.addField("!psnstatus", "Check the status of the PlayStation Network.");
-            embedAdmin.addField("!say", "Make the bot say what you type afterwards.")
+            embedAdmin.addField("!rl", "Send Rocket League invite to the Rocket League channel mentioning all users with the Rocket League role.");
+            embedAdmin.addField("!rlstats (platform) (username)", "Will return a link to your specified Rocket League stats. Platform codes are **steam = Steam**, **ps = PlayStation**, **xbox = Xbox Live**");
+            embedAdmin.addField("!say", "Make the bot say what you type afterwards.");
             embedAdmin.setColor('ff3ff5');
             embedAdmin.setTimestamp(Date.now());
         if(!message.member.roles.some(r=>["Admin"].includes(r.name)))
@@ -89,12 +102,11 @@ client.on('message', async message => { //ALL COMMANDS IN HERE
 
         message.channel.send(embed);
         message.member.send(embedAdmin);
-        await message.reply("I can see that you're admin. Please check your messages for additional commands as well as the ones below.");
+        await message.reply("I can see that you're worthy. Please check your messages for additional commands as well as the ones below.");
 
     }
 
     if(command === "invite") {
-      message.delete();
       const invite = "https://discord.gg/GrQgQTS"
       const embed = new Discord.RichEmbed();
 
@@ -123,7 +135,6 @@ client.on('message', async message => { //ALL COMMANDS IN HERE
     }
 
     if (command === "psnstatus") {
-      message.delete();
       var getJSON = require('get-json')
       const m = await message.channel.send("Pulling PlayStation Network status, please wait...");
       getJSON("https://status.playstation.com/data/statuses/region/SCEE/GB/statusIndicator.json").then(function(response) {
@@ -140,7 +151,6 @@ client.on('message', async message => { //ALL COMMANDS IN HERE
   }
 
   if (command === "steam") {
-    message.delete();
     let steamid = args[0]
     const embed = new Discord.RichEmbed();
     steam.resolve('https://steamcommunity.com/id/' + steamid)
@@ -162,10 +172,61 @@ client.on('message', async message => { //ALL COMMANDS IN HERE
     
     )}
 
+
+      //COINFLIP
+      if(command == "coin") {
+            function doRandHT() {
+      var rand = ['Heads','Tails'];
+
+      return rand[Math.floor(Math.random()*rand.length)]; }
+      const embed = {
+      "title": `Coin landed on:`,
+      "description": doRandHT(),
+      "color": 7584788,
+      };
+      message.channel.send({ embed });
+
+};
+
+
+    //DECIDE
+    if(command == "decide") {
+          function doRandHT() {
+    var rand = ["Yeah","Nah", "Maybe", "Absolutely!", "I don't think I should answer that", "Seems a bit personal", "If you think that is best", "I think you should shit in your hands and clap", "Fuck off"];
+    return rand[Math.floor(Math.random()*rand.length)]; }
+    const afterCommand = args.join(" "); 
+    const embed = {
+      
+    "title": afterCommand,
+    "description": doRandHT(),
+    "color": 7584788,
+    };
+    message.channel.send({ embed });
+
+};
+
 });
 
-//DERRRR
+//RLSTATS
+client.on('message', async message => { 
+  if(message.author.bot) return;
+  const args = message.content.slice(config.prefix.length).trim().split(/ +/g);
+  const command = args.shift().toLowerCase(); 
+  if(command === "rlstats") {
+let rlid = args[1]
+let platform = args[0]
+const embed = new Discord.RichEmbed();
 
+embed.setTitle("Rocket League Stats - " + rlid)
+embed.setDescription("Click above to access the full Rocket League stats for " + rlid + ". Powered by TRN Rocket League Tracker Network.")
+embed.setAuthor("Rocket League", "https://www.logolynx.com/images/logolynx/20/201103e7434d5808a7fa86b7b84da72e.png")
+embed.setThumbnail("https://www.logolynx.com/images/logolynx/20/201103e7434d5808a7fa86b7b84da72e.png")
+embed.setURL("https://rocketleague.tracker.network/profile/" + platform + "/" + rlid)
+embed.setTimestamp(Date.now())
+embed.setColor("0C2CFC")
+message.channel.send(embed).catch(error => message.channel.send("Parameters wrong, currently only available for Steam profiles"))
+  }
+});
 
 //ANNOUNCE
 client.on('message', async message => { 
@@ -184,7 +245,6 @@ client.on('message', async message => {
       const embed = new Discord.RichEmbed();
         message.delete();
         embed.setAuthor(client.user.username, client.user.displayAvatarURL);
-        embed.setThumbnail("https://www.pngrepo.com/download/244901/announcement-shout.png")
         embed.setTitle(title); //1
         embed.setDescription(body); //2
         embed.setURL(link); //3
